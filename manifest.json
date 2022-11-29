@@ -7,6 +7,7 @@
     "bookmarks",
     "tabs",
     "activeTab",
+    "storage",
     "notifications"
   ],
   "action": {
