@@ -12,26 +12,26 @@ $('#search').change(function () {
 
 // Traverse the bookmark tree, and print the folder and nodes.
 function dumpBookmarks(query) {
+    var tabMap = new Map();
     var bookmarkTreeNodes = chrome.bookmarks.getTree(function (bookmarkTreeNodes) {
-        // for (var i = 0; i < bookmarkTreeNodes.length; i++) {
+        for (var i = 0; i < bookmarkTreeNodes.length; i++) {
             // if (String(bookmarkTreeNodes[i].title.toLowerCase()).indexOf('test') == 0) {
-            //     $('#bookmarks').append(dumpNode(bookmarkTreeNodes[i], query));
+                $('#bookmarks').append(dumpNode(bookmarkTreeNodes[i], query, tabMap));
             // }
-        // }
-        $('#bookmarks').append(dumpNode(bookmarkTreeNodes[0].children[0].children[0], query));
+        }
     });
 }
 
-function dumpTreeNodes(bookmarkNodes, query) {
+function dumpTreeNodes(bookmarkNodes, query, tabMap) {
     var list = $('<ul>');
     for (var i = 0; i < bookmarkNodes.length; i++) {
-        list.append(dumpNode(bookmarkNodes[i], query));
+        list.append(dumpNode(bookmarkNodes[i], query, tabMap));
     }
 
     return list;
 }
 
-function dumpNode(bookmarkNode, query) {
+function dumpNode(bookmarkNode, query, tabMap) {
     if (bookmarkNode.title) {
         if (query && !bookmarkNode.children) {
             if (String(bookmarkNode.title.toLowerCase()).indexOf(query.toLowerCase()) == -1) {
@@ -49,13 +49,13 @@ function dumpNode(bookmarkNode, query) {
          */
         anchor.click(function () {
             if (bookmarkNode.children) {
-                openBookmarkNode(bookmarkNode);
+                openBookmarkNode(bookmarkNode, tabMap);
             } else {
-                chrome.storage.local.get(bookmarkNode.id).then((result) => {
-                    chrome.tabs.get(result[bookmarkNode.id], (tab) => {
-                        chrome.tabs.highlight({ tabs: tab.index})
-                    })
-                });
+                console.log(tabMap)
+                chrome.tabs.get(tabMap.get(bookmarkNode.id), (tab) => {
+                    console.log(tab.index)
+                    chrome.tabs.highlight({ tabs: tab.index })
+                })
             }
         });
 
@@ -169,24 +169,25 @@ function dumpNode(bookmarkNode, query) {
 
     var li = $(bookmarkNode.title ? '<li>' : '<div>').append(span);
     if (bookmarkNode.children && bookmarkNode.children.length > 0) {
-        li.append(dumpTreeNodes(bookmarkNode.children, query));
+        li.append(dumpTreeNodes(bookmarkNode.children, query, tabMap));
     }
 
     return li;
 }
                                                                                                                     
-function openBookmarkNode(bookmarkNode) {
+function openBookmarkNode(bookmarkNode, tabMap) {
     if (bookmarkNode.children && bookmarkNode.children.length > 0) {
         for (var i = 0; i < bookmarkNode.children.length; i++) {
-            openBookmarkNode(bookmarkNode.children[i]);
+            openBookmarkNode(bookmarkNode.children[i], tabMap);
         }
     } else {
         chrome.tabs.create({ url: bookmarkNode.url, active: false }, (tab) => {
-            let bookId = String(bookmarkNode.id);
-            let ob = {};
-            ob[bookId] = tab.id;
-            chrome.storage.local.set(ob).then(() => {
-                console.log("Value is set to " + tabMap);
+            tabMap.set(bookmarkNode.id, tab.id);
+            var bookmarkId = bookmarkNode.id;
+            var value = tab.id;
+            var obj = { bookmarkId: value };
+            chrome.storage.local.set().then(() => {
+                console.log("Value is set to " + value);
             });
         });
     }
