@@ -48,15 +48,7 @@ function dumpNode(bookmarkNode, query) {
          * the bookmark url.
          */
         anchor.click(function () {
-            if (bookmarkNode.children) {
-                openBookmarkNode(bookmarkNode);
-            } else {
-                chrome.storage.local.get(bookmarkNode.id).then((result) => {
-                    chrome.tabs.get(result[bookmarkNode.id], (tab) => {
-                        chrome.tabs.highlight({ tabs: tab.index})
-                    })
-                });
-            }
+            nodeClick(bookmarkNode)
         });
 
         var span = $('<span>');
@@ -174,21 +166,32 @@ function dumpNode(bookmarkNode, query) {
 
     return li;
 }
-                                                                                                                    
-function openBookmarkNode(bookmarkNode) {
+
+function openNode(bookmarkNode) {
+    chrome.tabs.create({url: bookmarkNode.url, active: true}, (tab) => {
+        chrome.storage.local.set({[bookmarkNode.id]: tab.id});
+    });
+}
+
+function nodeClick(bookmarkNode) {
     if (bookmarkNode.children && bookmarkNode.children.length > 0) {
         for (var i = 0; i < bookmarkNode.children.length; i++) {
-            openBookmarkNode(bookmarkNode.children[i]);
+            nodeClick(bookmarkNode.children[i]);
         }
     } else {
-        chrome.tabs.create({ url: bookmarkNode.url, active: false }, (tab) => {
-            let bookId = String(bookmarkNode.id);
-            let ob = {};
-            ob[bookId] = tab.id;
-            chrome.storage.local.set(ob).then(() => {
-                console.log("Value is set to " + tabMap);
-            });
-        });
+        chrome.storage.local.get(bookmarkNode.id, (map) => {
+            if (!map) {
+                openNode(bookmarkNode);
+                return
+            }
+            chrome.tabs.get(map[bookmarkNode.id], (tab) => {
+                if (!tab) {
+                    openNode(bookmarkNode);
+                    return
+                }
+                chrome.tabs.highlight({tabs: tab.index})
+            })
+        })
     }
 }
 
