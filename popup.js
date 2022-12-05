@@ -173,25 +173,32 @@ function openNode(bookmarkNode) {
     });
 }
 
-function nodeClick(bookmarkNode) {
+async function nodeClick(bookmarkNode) {
     if (bookmarkNode.children && bookmarkNode.children.length > 0) {
         for (var i = 0; i < bookmarkNode.children.length; i++) {
             nodeClick(bookmarkNode.children[i]);
         }
     } else {
-        chrome.storage.local.get(bookmarkNode.id, (map) => {
-            if (!map) {
-                openNode(bookmarkNode);
-                return
-            }
-            chrome.tabs.get(map[bookmarkNode.id], (tab) => {
-                if (!tab) {
-                    openNode(bookmarkNode);
-                    return
-                }
-                chrome.tabs.highlight({tabs: tab.index})
-            })
-        })
+        let map = await chrome.storage.local.get(bookmarkNode.id)
+        let tabId = map[bookmarkNode.id];
+        if (!tabId) {
+            console.log("map not found, opening new tab")
+            openNode(bookmarkNode);
+            return
+        }
+        let tab = null;
+        try {
+            tab = await chrome.tabs.get(tabId)
+        } catch (e) {
+            console.log("tab not found, maybe closed")
+        }
+        if (!tab) {
+            console.log("tab not found, opening new")
+            openNode(bookmarkNode);
+            return
+        }
+        console.log("tab found, activating")
+        chrome.tabs.highlight({tabs: tab.index})
     }
 }
 

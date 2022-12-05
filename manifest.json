@@ -1,7 +1,7 @@
 {
-  "name": "My Bookmarks",
-  "description": "A browser action with a popup dump of all bookmarks, including search, add, edit and delete.",
-  "version": "1.1",
+  "name": "Tab Index",
+  "description": "A browser action with a popup dump of all bookmarks, and quickly focus it.",
+  "version": "1.1.2",
   "manifest_version": 3,
   "permissions": [
     "bookmarks",
@@ -11,7 +11,7 @@
     "notifications"
   ],
   "action": {
-    "default_title": "My Bookmarks",
+    "default_title": "Tab Index",
     "default_icon": "index.png",
     "default_popup": "popup.html"
   }
