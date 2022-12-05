@@ -1,4 +1,4 @@
-## Chrome Extension that Manage Tabs use Bookmarks Directory Structure
+## A Chrome Extension that use Bookmarks Directory Structure to Manage Tabs 
 **make tabs organized and easy to find**
 
 - When active plugin, It will read the first bookmark folder and show it in popup use a tree structure.
