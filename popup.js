@@ -168,7 +168,7 @@ function dumpNode(bookmarkNode, query) {
 }
 
 function openNode(bookmarkNode) {
-    chrome.tabs.create({url: bookmarkNode.url, active: true}, (tab) => {
+    chrome.tabs.create({url: bookmarkNode.url, active: false}, (tab) => {
         chrome.storage.local.set({[bookmarkNode.id]: tab.id});
     });
 }
