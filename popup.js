@@ -39,7 +39,7 @@ function dumpNode(bookmarkNode, query) {
             }
         }
 
-        var anchor = $('<a>');
+        var anchor = $('<a style="color: MediumSeaGreen">');
         anchor.attr('href', bookmarkNode.url);
         anchor.text(bookmarkNode.title);
 
