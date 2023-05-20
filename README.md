@@ -7,4 +7,4 @@
 - Click the bookmark in popup to open it in new tab (if it not exists).
 
 ## show  
-![ffbea-zskny.gif](doc%2Fffbea-zskny.gif)
+![ffbea-zskny.gif](doc/ffbea-zskny.gif)
